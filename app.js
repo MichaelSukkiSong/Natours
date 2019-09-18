@@ -1,8 +1,15 @@
 const fs = require('fs');
 const express = require('express');
+const morgan = require('morgan');
 
 // calling express will add a bunch of methods to our app variable.
 const app = express();
+
+// 1) MIDDLEWARES
+
+// 3rd-party middleware from npm
+// a http request logger.
+app.use(morgan('dev'));
 
 // app.use to use middleware.
 // express.json() is a middleware. express.json() returns a function. middleware is basically just a function that can modify the incoming request data, a step that the request goes through while it's being processed.
@@ -30,6 +37,8 @@ app.use((req, res, next) => {
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
+
+// 2) ROUTE HANDLERS
 
 const getAllTours = (req, res) => {
   // we can use the info from the middleware in this route handler for example.
@@ -126,6 +135,8 @@ const deleteTour = (req, res) => {
 // app.patch('/api/v1/tours/:id', updateTour);
 // app.delete('/api/v1/tours/:id', deleteTour);
 
+// 3) ROUTES
+
 // our route handlers here are actually kind of middleware themselves. They are simply middleware functions that only apply for a certain URL so a certain route.
 app
   .route('/api/v1/tours')
@@ -138,8 +149,8 @@ app
   .patch(updateTour)
   .delete(deleteTour);
 
+// 4) START SERVER
 const port = 3000;
-
 // start a server
 app.listen(port, () => {
   console.log(`App running on port ${port}...`);
