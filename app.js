@@ -1,6 +1,17 @@
-const fs = require('fs');
+/*
+This app.js file is usually mainly used for middleware declarations.
+So we have all the middleware that we want to apply to all the routes
+and then for the specific routes, we want to apply the tourRouter middleware or the userRouter middleware.
+*/
+/*
+We have everything that is basically the application configuration in one stand-alone file
+*/
+
 const express = require('express');
 const morgan = require('morgan');
+
+const tourRouter = require('./routes/tourRoutes');
+const userRouter = require('./routes/userRoutes');
 
 // calling express will add a bunch of methods to our app variable.
 const app = express();
@@ -11,7 +22,7 @@ const app = express();
 // a http request logger.
 app.use(morgan('dev'));
 
-// app.use to use middleware.
+// app.use to USE middleware.
 // express.json() is a middleware. express.json() returns a function. middleware is basically just a function that can modify the incoming request data, a step that the request goes through while it's being processed.
 app.use(express.json());
 
@@ -34,134 +45,8 @@ app.use((req, res, next) => {
   next();
 });
 
-const tours = JSON.parse(
-  fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
-);
-
 // 2) ROUTE HANDLERS
 // our route handlers here are actually kind of middleware themselves. They are simply middleware functions that only apply for a certain URL so a certain route.
-
-const getAllTours = (req, res) => {
-  // we can use the info from the middleware in this route handler for example.
-  console.log(req.requestTime);
-
-  res.status(200).json({
-    status: 'success',
-    requestedAt: req.requestTime,
-    results: tours.length,
-    data: {
-      tours
-    }
-  });
-};
-
-const getTour = (req, res) => {
-  console.log(req.params);
-  const id = req.params.id * 1;
-
-  const tour = tours.find(el => el.id === id);
-
-  //   if (id > tours.length) {
-  if (!tour) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'Invalid ID'
-    });
-  }
-
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tour
-    }
-  });
-};
-
-const createTour = (req, res) => {
-  // we have to use middleware for the req to have the body property.
-  // console.log(req.body);
-
-  const newId = tours[tours.length - 1].id + 1;
-  const newTour = Object.assign({ id: newId }, req.body);
-
-  tours.push(newTour);
-
-  fs.writeFile(
-    `${__dirname}/dev-data/data/tours-simple.json`,
-    JSON.stringify(tours),
-    err => {
-      res.status(201).json({
-        status: 'success',
-        data: {
-          tour: newTour
-        }
-      });
-    }
-  );
-};
-
-const updateTour = (req, res) => {
-  if (req.params.id * 1 > tours.length) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'Invalid ID'
-    });
-  }
-
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tour: '<Updated tour here...>'
-    }
-  });
-};
-
-const deleteTour = (req, res) => {
-  if (req.params.id * 1 > tours.length) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'Invalid ID'
-    });
-  }
-
-  res.status(204).json({
-    status: 'success',
-    data: null
-  });
-};
-
-const getAllUsers = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined!'
-  });
-};
-
-const getUser = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined!'
-  });
-};
-
-const createUser = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined!'
-  });
-};
-const updateUser = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined!'
-  });
-};
-const deleteUser = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined!'
-  });
-};
 
 // app.get('/api/v1/tours', getAllTours);
 // app.post('/api/v1/tours', createTour);
@@ -171,37 +56,12 @@ const deleteUser = (req, res) => {
 
 // 3) ROUTES
 
-// If we want to separate the resources for routes and route handlers, we have to have one separate router for each of our resources.
-const tourRouter = express.Router();
-const userRouter = express.Router();
-
-tourRouter
-  .route('/')
-  .get(getAllTours)
-  .post(createTour);
-
-tourRouter
-  .route('/:id')
-  .get(getTour)
-  .patch(updateTour)
-  .delete(deleteTour);
-
-userRouter
-  .route('/')
-  .get(getAllUsers)
-  .post(createUser);
-
-userRouter
-  .route('/:id')
-  .get(getUser)
-  .patch(updateUser)
-  .delete(deleteUser);
-
 // how to connect the new router with our application? we will use it as middleware.because the tourRouter, userRouter is actually a real middleware.
 // we want to use the tourRouter/userRouter(middleware) on a specific route.
 // we basically created a sub-application.
 // the route here means the root of our mini application.
-// this is called mounting the router. So mounting a new router on a route basically.
+// this is called MOUNTING the router. So mounting a new router on a route basically.
+// MOUNTING OUR ROUTERS
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
@@ -215,8 +75,5 @@ and finally it will run one of these handlers depending on the method.
 */
 
 // 4) START SERVER
-const port = 3000;
-// start a server
-app.listen(port, () => {
-  console.log(`App running on port ${port}...`);
-});
+
+module.exports = app;
