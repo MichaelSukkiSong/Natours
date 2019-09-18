@@ -39,6 +39,7 @@ const tours = JSON.parse(
 );
 
 // 2) ROUTE HANDLERS
+// our route handlers here are actually kind of middleware themselves. They are simply middleware functions that only apply for a certain URL so a certain route.
 
 const getAllTours = (req, res) => {
   // we can use the info from the middleware in this route handler for example.
@@ -170,28 +171,48 @@ const deleteUser = (req, res) => {
 
 // 3) ROUTES
 
-// our route handlers here are actually kind of middleware themselves. They are simply middleware functions that only apply for a certain URL so a certain route.
-app
-  .route('/api/v1/tours')
+// If we want to separate the resources for routes and route handlers, we have to have one separate router for each of our resources.
+const tourRouter = express.Router();
+const userRouter = express.Router();
+
+tourRouter
+  .route('/')
   .get(getAllTours)
   .post(createTour);
 
-app
-  .route('/api/v1/tours/:id')
+tourRouter
+  .route('/:id')
   .get(getTour)
   .patch(updateTour)
   .delete(deleteTour);
 
-app
-  .route('/api/v1/users')
+userRouter
+  .route('/')
   .get(getAllUsers)
   .post(createUser);
 
-app
-  .route('/api/v1/users/:id')
+userRouter
+  .route('/:id')
   .get(getUser)
   .patch(updateUser)
   .delete(deleteUser);
+
+// how to connect the new router with our application? we will use it as middleware.because the tourRouter, userRouter is actually a real middleware.
+// we want to use the tourRouter/userRouter(middleware) on a specific route.
+// we basically created a sub-application.
+// the route here means the root of our mini application.
+// this is called mounting the router. So mounting a new router on a route basically.
+app.use('/api/v1/tours', tourRouter);
+app.use('/api/v1/users', userRouter);
+
+// so...the tourRouter middleware only runs on '/api/v1/tours' this route here, so once we are in the router then we already are at that route.
+// when we create a router system like this, we actually say that we kind of create a small sub-app for each of theses resources.
+/*
+For example, if we have an incoming request for /api/v1/tours/:id. So the request goes into the middleware stack,
+and when it hits app.use('/api/v1/tours', tourRouter); this line of code here, it will match '/api/v1/tours' this route and therefore our tourRouter middleware function will run
+so our tourRouter is the sub-application that we created, which in turn has its own routes. and if the request was for /:id, then it will inside our mini-app hit .route('/:id') this route here.
+and finally it will run one of these handlers depending on the method.
+*/
 
 // 4) START SERVER
 const port = 3000;
