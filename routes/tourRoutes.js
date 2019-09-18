@@ -10,10 +10,15 @@ const router = express.Router();
 // using the concept of param middleware, we are going to perform this check here in a outside middleware that is going to run before the request even hits the handler functions.
 router.param('id', tourController.checkID);
 
+// Create a checkbody middleware
+// Check if body contains the name and price property
+// If not, send back 400 (bad request)
+// Add it to the post handler stack
+
 router
   .route('/')
   .get(tourController.getAllTours)
-  .post(tourController.createTour);
+  .post(tourController.checkBody, tourController.createTour);
 
 router
   .route('/:id')
