@@ -20,7 +20,13 @@ const app = express();
 
 // 3rd-party middleware from npm
 // a http request logger.
-app.use(morgan('dev'));
+// we used the environment variable NODE_ENV in order to run this middleware when we are in development
+// we have access to the environment variable process.env.NODE_ENV even though it was defined in server.js because, the reading of the variables from the file(config.env) to the node process only needs to happen once.
+// it's then in the process and the process if of course the same no matter in what file we are.
+//console.log(process.env.NODE_ENV);
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 
 // app.use to USE middleware.
 // express.json() is a middleware. express.json() returns a function. middleware is basically just a function that can modify the incoming request data, a step that the request goes through while it's being processed.
