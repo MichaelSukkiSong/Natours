@@ -26,6 +26,12 @@ app.use(morgan('dev'));
 // express.json() is a middleware. express.json() returns a function. middleware is basically just a function that can modify the incoming request data, a step that the request goes through while it's being processed.
 app.use(express.json());
 
+// simple built in middleware to serve static files.
+// how we can serve static files from a folder and not from a route.
+// not go into any route but simply serve that file that we specified from the folder that we specified in this middleware
+// when we open up a url that we cant find in any of our routes it will then look in that public folder that we defined and it kind of sets that folder to the root.
+app.use(express.static(`${__dirname}/public`));
+
 // defining our own custom middleware.
 // this middleware here applys to each and every single request.because we didnt specify any route.
 // in express the ORDER of the middleware in the code matters. the request-response cycle is LINEAR.
