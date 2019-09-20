@@ -3,6 +3,8 @@ Later on we will actually have other stuff in this file that is not related to e
 Stuff like, database configuration, error handling, environment variables, etc.
 */
 
+const mongoose = require('mongoose');
+
 // to connect the .env file with our node application.
 // to read the variables from the .env file and then saving them as environment variables.
 // we use the dotenv npm package.
@@ -44,6 +46,24 @@ Now it's not really practical to always define all of these variables in the com
 And so instead what we do is to create a configuration file.
 config.env ^_^
 */
+
+const DB = process.env.DATABASE.replace(
+  '<PASSWORD>',
+  process.env.DATABASE_PASSWORD
+);
+
+mongoose
+  // local database version
+  // .connect(process.env.DATABASE_LOCAL, {
+  // hosted database version
+  .connect(DB, {
+    // just some options to deal with deprecation warnings.
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useFindAndModify: false,
+    useUnifiedTopology: true
+  })
+  .then(() => console.log('DB connection successful!'));
 
 const port = process.env.PORT || 3000;
 // start a server
