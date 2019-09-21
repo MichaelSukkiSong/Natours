@@ -30,7 +30,7 @@ exports.checkID = (req, res, next, val) => {
 */
 
 /*
-////////////NO LONGER NEEDED, BECAUSE MONGOOSE WILL GOING TO TAKE CARE OF IR////////////////
+////////////NO LONGER NEEDED, BECAUSE MONGOOSE WILL GOING TO TAKE CARE OF IT////////////////
 exports.checkBody = (req, res, next) => {
   if (!req.body.name || !req.body.price) {
     return res.status(400).json({
@@ -47,6 +47,7 @@ exports.getAllTours = async (req, res) => {
     // we can use the info from the middleware in this route handler for example.
     //console.log(req.requestTime);
 
+    // find(),findByIdAndUpdate(),findById() returns query objects, and later on can be used to immplement sorting/filtering.
     const tours = await Tour.find();
 
     res.status(200).json({
@@ -68,6 +69,7 @@ exports.getAllTours = async (req, res) => {
 exports.getTour = async (req, res) => {
   try {
     // exactly the same as Tour.findOne({ _id: req.params.id }). findById is a shorthand of writing { _id: req.params.id }
+    // find(),findByIdAndUpdate(),findById() returns query objects, and later on can be used to immplement sorting/filtering.
     const tour = await Tour.findById(req.params.id);
 
     res.status(200).json({
@@ -90,8 +92,8 @@ exports.getTour = async (req, res) => {
 
 exports.createTour = async (req, res) => {
   try {
-    // we can do it like this to create documents.
-    // we create the tour from the model, and then use the save method on that tour. this save method returns a promise.
+    // we can do it like this to create documents. we create the tour from the model, and then use the save method on that tour. this save method returns a promise.
+    // https://mongoosejs.com/docs/api/model.html#model_Model-save
     // const newTour = new Tour({});
     // newTour.save();
 
@@ -134,13 +136,29 @@ exports.createTour = async (req, res) => {
   }
 };
 
-exports.updateTour = (req, res) => {
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tour: '<Updated tour here...>'
-    }
-  });
+exports.updateTour = async (req, res) => {
+  try {
+    // https://mongoosejs.com/docs/queries.html
+    // find(),findByIdAndUpdate(),findById() returns query objects, and later on can be used to immplement sorting/filtering.
+    const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
+      // new: bool - true to return the modified document rather than the original. defaults to false
+      new: true,
+      // runValidators: if true, runs update validators on this command. Update validators validate the update operation against the model's schema.
+      runValidators: true
+    });
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        tour
+      }
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: 'fail',
+      message: err
+    });
+  }
 };
 
 exports.deleteTour = (req, res) => {
