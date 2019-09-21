@@ -65,27 +65,8 @@ mongoose
   })
   .then(() => console.log('DB connection successful!'));
 
-// tour schema
-const tourSchema = new mongoose.Schema({
-  name: {
-    // schema type options
-    type: String,
-    // validator
-    required: [true, 'A tour must have a name'],
-    unique: true
-  },
-  rating: {
-    type: Number,
-    default: 4.5
-  },
-  price: {
-    type: Number,
-    required: [true, 'A tour must have a price']
-  }
-});
-// tour model created by the schema
-const Tour = mongoose.model('Tour', tourSchema);
-
+/*
+////////// TESTING /////////////
 // a new document created out of the tour model
 // the document is an instance of the model. so it has a couple of methods on it.
 const testTour = new Tour({
@@ -103,6 +84,7 @@ testTour
   .catch(err => {
     console.log('ERROR !!!:', err);
   });
+*/
 
 const port = process.env.PORT || 3000;
 // start a server

@@ -1,9 +1,17 @@
-const fs = require('fs');
+// const fs = require('fs');
 
+// import tour model
+const Tour = require('./../models/tourModel');
+
+/*
+//////////TESTING////////////
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
 );
+*/
 
+/*
+////////////NO LONGER NEEDED, BECAUSE MONGO WILL GIVE US AN INVALID IR ERROR ITSELF////////////////
 // using the concept of param middleware, we are going to perform this check here in a outside middleware that is going to run before the request even hits the handler functions. so this middleware is part of our pipline.
 // you might argue that we might simply create a simple function which could also check for the id and call that function inside each of the tourfunction..
 // but that goes against the philosophy of express, where we should always work withthe middleware stack, so with this pipeline as much as we can.
@@ -19,6 +27,7 @@ exports.checkID = (req, res, next, val) => {
   }
   next();
 };
+*/
 
 exports.checkBody = (req, res, next) => {
   if (!req.body.name || !req.body.price) {
@@ -36,11 +45,11 @@ exports.getAllTours = (req, res) => {
 
   res.status(200).json({
     status: 'success',
-    requestedAt: req.requestTime,
-    results: tours.length,
-    data: {
-      tours
-    }
+    requestedAt: req.requestTime
+    // results: tours.length,
+    // data: {
+    //   tours
+    // }
   });
 };
 
@@ -48,55 +57,47 @@ exports.getTour = (req, res) => {
   console.log(req.params);
   const id = req.params.id * 1;
 
-  const tour = tours.find(el => el.id === id);
+  // const tour = tours.find(el => el.id === id);
 
-  //   if (id > tours.length) {
-  if (!tour) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'Invalid ID'
-    });
-  }
-
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tour
-    }
-  });
+  // res.status(200).json({
+  //   status: 'success',
+  //   data: {
+  //     tour
+  //   }
+  // });
 };
 
 exports.createTour = (req, res) => {
   // we have to use middleware for the req to have the body property.
   // console.log(req.body);
 
-  const newId = tours[tours.length - 1].id + 1;
-  const newTour = Object.assign({ id: newId }, req.body);
+  res.status(201).json({
+    status: 'success'
+    // data: {
+    //   tour: newTour
+    // }
+  });
 
-  tours.push(newTour);
+  // const newId = tours[tours.length - 1].id + 1;
+  // const newTour = Object.assign({ id: newId }, req.body);
 
-  fs.writeFile(
-    `${__dirname}/dev-data/data/tours-simple.json`,
-    JSON.stringify(tours),
-    err => {
-      res.status(201).json({
-        status: 'success',
-        data: {
-          tour: newTour
-        }
-      });
-    }
-  );
+  // tours.push(newTour);
+
+  // fs.writeFile(
+  //   `${__dirname}/dev-data/data/tours-simple.json`,
+  //   JSON.stringify(tours),
+  //   err => {
+  //     res.status(201).json({
+  //       status: 'success',
+  //       data: {
+  //         tour: newTour
+  //       }
+  //     });
+  //   }
+  // );
 };
 
 exports.updateTour = (req, res) => {
-  if (req.params.id * 1 > tours.length) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'Invalid ID'
-    });
-  }
-
   res.status(200).json({
     status: 'success',
     data: {

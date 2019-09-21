@@ -8,7 +8,7 @@ const router = express.Router();
 // param middleware : middleware that only runs for certain parameters. so when we have a certain parameter in our url.
 // since this middleware is only specified on this router, well then of course it is only part of the middleware stack if we are actually inside of this sub application.
 // using the concept of param middleware, we are going to perform this check here in a outside middleware that is going to run before the request even hits the handler functions.
-router.param('id', tourController.checkID);
+// router.param('id', tourController.checkID);
 
 // Create a checkbody middleware
 // Check if body contains the name and price property
