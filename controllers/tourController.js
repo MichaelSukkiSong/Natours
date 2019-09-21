@@ -42,32 +42,50 @@ exports.checkBody = (req, res, next) => {
 };
 */
 
-exports.getAllTours = (req, res) => {
-  // we can use the info from the middleware in this route handler for example.
-  console.log(req.requestTime);
+exports.getAllTours = async (req, res) => {
+  try {
+    // we can use the info from the middleware in this route handler for example.
+    //console.log(req.requestTime);
 
-  res.status(200).json({
-    status: 'success',
-    requestedAt: req.requestTime
-    // results: tours.length,
-    // data: {
-    //   tours
-    // }
-  });
+    const tours = await Tour.find();
+
+    res.status(200).json({
+      status: 'success',
+      // requestedAt: req.requestTime
+      results: tours.length,
+      data: {
+        tours
+      }
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: 'fail',
+      message: err
+    });
+  }
 };
 
-exports.getTour = (req, res) => {
-  console.log(req.params);
-  const id = req.params.id * 1;
+exports.getTour = async (req, res) => {
+  try {
+    // exactly the same as Tour.findOne({ _id: req.params.id }). findById is a shorthand of writing { _id: req.params.id }
+    const tour = await Tour.findById(req.params.id);
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        tour
+      }
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: 'fail',
+      message: err
+    });
+  }
+  // console.log(req.params);
+  // const id = req.params.id * 1;
 
   // const tour = tours.find(el => el.id === id);
-
-  // res.status(200).json({
-  //   status: 'success',
-  //   data: {
-  //     tour
-  //   }
-  // });
 };
 
 exports.createTour = async (req, res) => {
