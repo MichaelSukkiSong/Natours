@@ -44,12 +44,40 @@ exports.checkBody = (req, res, next) => {
 
 exports.getAllTours = async (req, res) => {
   try {
+    // BUILD QUERY
+    // we have to exclude special field names from our query string before we actually do the filtering.(ex. &page=2, )
+    // we need a hard copy here. because if we delete something queryObj it will also delete it from the req.query if we do a shallow copy.(In JS when we set a variable to an another object, the new variable will be a reference to that original object)
+    // In JS there's really no built in way of doing a hard copy, so we destructure it first and then create a new object out of that.
+    const queryObj = { ...req.query };
+    // an array of all the field that we want to exclude.
+    const excludedFields = ['page', 'sort', 'limit', 'fields'];
+    // remove all of the excludedfields from the queryObj.
+    excludedFields.forEach(el => delete queryObj[el]);
+
+    // shows an object containing the query string data ( eg. ?duration=5&difficulty=easy)
+    // express parses the string in to an easy to use object.
+    //console.log(req.query, queryObj);
+
     // we can use the info from the middleware in this route handler for example.
     //console.log(req.requestTime);
 
     // find(),findByIdAndUpdate(),findById() returns query objects, and later on can be used to immplement sorting/filtering.
-    const tours = await Tour.find();
+    // the first way of writing database queries in mongoose.(Using a filter object)
+    // 모델에 쿼리를 던져서 query object를 받고, 거기다가 Query.protype에 있는 method들을 적용하는 개념.
+    const query = Tour.find(queryObj);
 
+    // find(),findByIdAndUpdate(),findById() returns query objects, and later on can be used to immplement sorting/filtering.
+    // another way of writing database queries in mongoose.(Using special mongoose methods)
+    // const query = await Tour.find()
+    //   .where('duration')
+    //   .equals(5)
+    //   .where('difficulty')
+    //   .equals('easy');
+
+    // EXECUTE QUERY
+    const tours = await query;
+
+    // SEND RESPONSE
     res.status(200).json({
       status: 'success',
       // requestedAt: req.requestTime
