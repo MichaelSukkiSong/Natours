@@ -47,7 +47,7 @@ exports.getAllTours = async (req, res) => {
     console.log(req.query);
 
     // BUILD QUERY
-    // 1) Filtering
+    // 1A) Filtering
     // we have to exclude special field names from our query string before we actually do the filtering.(ex. &page=2, )
     // we need a hard copy here. because if we delete something from queryObj, it will also delete it from the req.query if we do a shallow copy.(In JS when we set a variable to an another object, the new variable will be a reference to that original object)
     // In JS there's really no built in way of doing a hard copy, so we destructure it first and then create a new object out of that.
@@ -64,10 +64,10 @@ exports.getAllTours = async (req, res) => {
     // we can use the info from the middleware in this route handler for example.
     //console.log(req.requestTime);
 
-    // 2) Advanced filtering
+    // 1B) Advanced filtering
     let queryStr = JSON.stringify(queryObj);
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
-    console.log(JSON.parse(queryStr));
+    //console.log(JSON.parse(queryStr));
 
     // { difficulty: 'easy', duration: { $gte: 5 } }
     // { difficulty: 'easy', duration: { gte: '5' } }
@@ -76,7 +76,17 @@ exports.getAllTours = async (req, res) => {
     // find(),findByIdAndUpdate(),findById() returns query objects, and later on can be used to immplement sorting/filtering.
     // the first way of writing database queries in mongoose.(Using a filter object)
     // 모델에 쿼리를 던져서 query object를 받고, 거기다가 Query.protype에 있는 method들을 적용하는 개념.
-    const query = Tour.find(JSON.parse(queryStr));
+    let query = Tour.find(JSON.parse(queryStr));
+
+    // 2) Sorting
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(',').join(' ');
+      //console.log(sortBy);
+      query = query.sort(sortBy);
+      // sort('price ratingsAverage') --> price가 동일할 때 ratingsAverage로 정렬
+    } else {
+      query = query.sort('-createdAt');
+    }
 
     // EXECUTE QUERY
     const tours = await query;
