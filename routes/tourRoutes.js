@@ -15,9 +15,13 @@ const router = express.Router();
 // If not, send back 400 (bad request)
 // Add it to the post handler stack
 
+// aliasing
 router
   .route('/top-5-cheap')
   .get(tourController.aliasTopTours, tourController.getAllTours);
+
+// aggregation pipeline: mathcing and grouping
+router.route('/tour-stats').get(tourController.getTourStats);
 
 router
   .route('/')
