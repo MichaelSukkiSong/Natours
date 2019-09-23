@@ -2,6 +2,7 @@
 
 // import tour model
 const Tour = require('./../models/tourModel');
+const APIFeatures = require('./../utils/apiFeatures');
 
 /*
 //////////TESTING////////////
@@ -54,6 +55,7 @@ exports.getAllTours = async (req, res) => {
     console.log(req.query);
 
     // BUILD QUERY
+    /*
     // 1A) Filtering
     // we have to exclude special field names from our query string before we actually do the filtering.(ex. &page=2, )
     // we need a hard copy here. because if we delete something from queryObj, it will also delete it from the req.query if we do a shallow copy.(In JS when we set a variable to an another object, the new variable will be a reference to that original object)
@@ -84,7 +86,9 @@ exports.getAllTours = async (req, res) => {
     // the first way of writing database queries in mongoose.(Using a filter object)
     // 모델에 쿼리를 던져서 query object를 받고, 거기다가 Query.protype에 있는 method들을 적용하는 개념. 적용된 메쏘드는 또 쿼리를 받기에 chain을 할 수 있음.
     let query = Tour.find(JSON.parse(queryStr));
+    */
 
+    /*
     // 2) Sorting
     if (req.query.sort) {
       const sortBy = req.query.sort.split(',').join(' ');
@@ -94,7 +98,9 @@ exports.getAllTours = async (req, res) => {
     } else {
       query = query.sort('-createdAt');
     }
+    */
 
+    /*
     // 3) Field limiting
     if (req.query.fields) {
       const fields = req.query.fields.split(',').join(' ');
@@ -103,7 +109,9 @@ exports.getAllTours = async (req, res) => {
       // the minus excludes the field. so we have everything except the __v
       query = query.select('-__v');
     }
+    */
 
+    /*
     // 4) Pagination
     const page = req.query.page * 1 || 1;
     const limit = req.query.limit * 1 || 100;
@@ -116,9 +124,21 @@ exports.getAllTours = async (req, res) => {
       const numTours = await Tour.countDocuments();
       if (skip >= numTours) throw new Error('This page does not exist');
     }
+    */
 
     // EXECUTE QUERY
-    const tours = await query;
+    /* 
+    we are creating a new object of the APIFeatures class.
+    In there we are passing a query object, and the queryString that is coming from express
+    And then in each of the 4 methods that we call one after another, we manipulate the query, we keep adding more methods to it
+    And then by the end we await the result of that query so that it can comeback with all the documents that were selected. the query now lives at features.
+    */
+    const features = new APIFeatures(Tour.find(), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+    const tours = await features.query;
     // query.sort().select().skip().limit()
 
     // find(),findByIdAndUpdate(),findById() returns query objects, and later on can be used to immplement sorting/filtering.
