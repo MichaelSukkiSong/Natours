@@ -75,7 +75,7 @@ exports.getAllTours = async (req, res) => {
 
     // find(),findByIdAndUpdate(),findById() returns query objects, and later on can be used to immplement sorting/filtering.
     // the first way of writing database queries in mongoose.(Using a filter object)
-    // 모델에 쿼리를 던져서 query object를 받고, 거기다가 Query.protype에 있는 method들을 적용하는 개념.
+    // 모델에 쿼리를 던져서 query object를 받고, 거기다가 Query.protype에 있는 method들을 적용하는 개념. 적용된 메쏘드는 또 쿼리를 받기에 chain을 할 수 있음.
     let query = Tour.find(JSON.parse(queryStr));
 
     // 2) Sorting
@@ -97,8 +97,22 @@ exports.getAllTours = async (req, res) => {
       query = query.select('-__v');
     }
 
+    // 4) Pagination
+    const page = req.query.page * 1 || 1;
+    const limit = req.query.limit * 1 || 100;
+    const skip = (page - 1) * limit;
+
+    // page3&limit=10, 1-10, page 1, 11-20, page 2, 21-30, page 3
+    query = query.skip(skip).limit(limit);
+
+    if (req.query.page) {
+      const numTours = await Tour.countDocuments();
+      if (skip >= numTours) throw new Error('This page does not exist');
+    }
+
     // EXECUTE QUERY
     const tours = await query;
+    // query.sort().select().skip().limit()
 
     // find(),findByIdAndUpdate(),findById() returns query objects, and later on can be used to immplement sorting/filtering.
     // another way of writing database queries in mongoose.(Using special mongoose methods)
