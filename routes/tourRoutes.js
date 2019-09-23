@@ -22,6 +22,8 @@ router
 
 // aggregation pipeline: mathcing and grouping
 router.route('/tour-stats').get(tourController.getTourStats);
+// aggregation pipeline: unwinding and projecting
+router.route('/monthly-plan/:year').get(tourController.getMonthlyPlan);
 
 router
   .route('/')
