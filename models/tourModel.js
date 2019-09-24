@@ -94,7 +94,7 @@ knowing the duration in weeks is a business logic because it has to do with the 
 
 // Just like express mongoose also has the concept of middleware. which can be used to make something happen between two events.
 // for example, each time a new document is saved to the database we can run a function between the save command is issued and the actual saving of the document.or also after the actual saving
-// There are 4 types of middleware in mongoose: document, query, aggregate, and model middleware.
+// There are 4 types of middleware in mongoose: document, query, aggregate, and model middleware.(model middleware not that important)
 
 // document middleware: middleware that can act on the currently processed document.
 // DOCUMENT MIDDLEWARE: only runs before .save() and .create() mongoose methods, (NOT ON .insertMany(),findOne(), findByIdAndUpdate()..etc. !! )
@@ -143,7 +143,16 @@ tourSchema.pre(/^find/, function(next) {
 tourSchema.post(/^find/, function(docs, next) {
   console.log(`Query took ${Date.now() - this.start} milliseconds!`);
   // print documents that matched the query
-  console.log(docs);
+  //console.log(docs);
+  next();
+});
+
+// AGGREGATION MIDDLEWARE
+// aggregation middleware allows us to add hooks before or after an aggregation happens.
+tourSchema.pre('aggregate', function(next) {
+  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+  // the this keyword points to the current aggregation object.
+  console.log(this.pipeline());
   next();
 });
 
