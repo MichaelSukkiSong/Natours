@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
+// A library of string validators and sanitizers.
+const validator = require('validator');
 
 // tour schema
 const tourSchema = new mongoose.Schema(
@@ -16,6 +18,10 @@ const tourSchema = new mongoose.Schema(
       // validators only available on strings
       maxlength: [40, 'A tour name must have less or equal then 40 characters'],
       minlength: [10, 'A tour name must have more or equal then 10 characters']
+      // to specfy our validator we use the validate property.
+      // we just specify the function here.(we dont call it)
+      // not going to use it cuz you have to get rid of the spaces as well..but later we are going to use the library when checking user email.
+      // validate: [validator.isAlpha, 'Tour name must only contain characters']
     },
     slug: String,
     duration: {
@@ -50,7 +56,23 @@ const tourSchema = new mongoose.Schema(
       type: Number,
       required: [true, 'A tour must have a price']
     },
-    priceDiscount: Number,
+    priceDiscount: {
+      type: Number,
+      // custom validator
+      // to specfy our validator we use the validate property.
+      validate: {
+        // a callback function ( a real function because we are going to have access to the this variable which will point to the current document)
+        // the callback function has access to the value that was input it. in this case the priceDiscount that the user specified.
+        validator: function(val) {
+          // we need to return either true or false from this validator
+          // inside a validator function the this keyword is only going to point to the current document when we are creating a new document. so this function here is not going to work on update.
+          // 'this' only points to current doc on NEW document creation.
+          return val < this.price; // 100 < 200
+        },
+        // a nice trick. the message also has access to the value.(internal to mongoose, nothing to do with JS)
+        message: 'Discount price ({VALUE}) should be below the regular price'
+      }
+    },
     summary: {
       type: String,
       // string schema type which will remove all the white space in the beginning and the end of a string.
