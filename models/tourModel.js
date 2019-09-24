@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const slugify = require('slugify');
 
 // tour schema
 const tourSchema = new mongoose.Schema(
@@ -12,6 +13,7 @@ const tourSchema = new mongoose.Schema(
       unique: true,
       trim: true
     },
+    slug: String,
     duration: {
       type: Number,
       required: [true, 'A tour must have a duration']
@@ -70,6 +72,7 @@ const tourSchema = new mongoose.Schema(
   }
 );
 
+// VIRTUAL PROPERTIES
 // Virtual properties: fields that we can define on our schema but that will be not persistent(they will not be saved into the database).
 // It is not going to be persistent in the database but it's only going to be there as soon as we GET the data.
 // virtual properties make alot of sense for fields that can be derived from one another. For example, a conversion miles to kilometer. It doesn't make sense to store these two fields in a database if we can easily convert one to the other.
@@ -83,6 +86,37 @@ tourSchema.virtual('durationWeeks').get(function() {
 one thing about virtual properties,, is that we cannot use virtual properties in a query, because they are technically not part of the database.
 Of course we could also have done this conversion each time after we query the data for example like in the controller, but that would not be the best practice simply because we want to keep business logic and application logic as much separated as possible.
 knowing the duration in weeks is a business logic because it has to do with the business itself not with stuff like requests or responses and so we do the calculation right in the model where it belongs and not in the controller.
+*/
+
+// Just like express mongoose also has the concept of middleware. which can be used to make something happen between two events.
+// for example, each time a new document is saved to the database we can run a function between the save command is issued and the actual saving of the document.or also after the actual saving
+// There are 4 types of middleware in mongoose: document, query, aggregate, and model middleware.
+
+// document middleware: middleware that can act on the currently processed document.
+// DOCUMENT MIDDLEWARE: only runs before .save() and .create() mongoose methods, (NOT ON .insertMany(),findOne(), findByIdAndUpdate()..etc. !! )
+// the callback function is going to be called before an actual document is saved to the database
+// pre document middleware
+tourSchema.pre('save', function(next) {
+  // in a 'save' middleware, the this keyword points to the currently processed document.that is why it's called document middleware.
+  //console.log(this);
+
+  // define a new propery(slug) at the currently processed document(this) which will be the slug of the this.name in lowercase.
+  this.slug = slugify(this.name, { lower: true });
+  // just like express mongoose middleware has next function.
+  next();
+});
+
+/*
+tourSchema.pre('save', function(next) {
+  console.log('Will save document...');
+  next();
+});
+
+// post document middleware
+tourSchema.post('save', function(doc, next) {
+  console.log(doc);
+  next();
+});
 */
 
 // tour model created by the schema
