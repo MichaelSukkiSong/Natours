@@ -60,7 +60,11 @@ const tourSchema = new mongoose.Schema(
       // excluding this field right from the schema. used when it's sensitive data.
       select: false
     },
-    startDates: [Date]
+    startDates: [Date],
+    secretTour: {
+      type: Boolean,
+      default: false
+    }
   },
   // the object for the schema options
   // we have to explicitly define in our schema that we want the virtual properties in our output.
@@ -118,6 +122,30 @@ tourSchema.post('save', function(doc, next) {
   next();
 });
 */
+
+// QUERY MIDDLEWARE
+// so when we hit, 127.0.0.1:3000/api/v1/tours using the get method, we create a query using Tour.find().
+// and then we chain all those methods to it and then by the end we execute that query using await.
+// but before it actually is executed then our pre find middleware here is executed.
+// it is executed because it is 'find' just like we used in Tour.find()
+// So we are creating a find query, and therefore'find' hook is then executed.
+// tourSchema.pre('find', function(next) {
+tourSchema.pre(/^find/, function(next) {
+  // the this keyword will now point at the current query
+  // we filter out the secretTour
+  this.find({ secretTour: { $ne: true } });
+
+  this.start = Date.now();
+  next();
+});
+
+// post query middleware
+tourSchema.post(/^find/, function(docs, next) {
+  console.log(`Query took ${Date.now() - this.start} milliseconds!`);
+  // print documents that matched the query
+  console.log(docs);
+  next();
+});
 
 // tour model created by the schema
 const Tour = mongoose.model('Tour', tourSchema);
