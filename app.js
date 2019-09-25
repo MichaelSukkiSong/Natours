@@ -30,6 +30,7 @@ if (process.env.NODE_ENV === 'development') {
 
 // app.use to USE middleware.
 // express.json() is a middleware. express.json() returns a function. middleware is basically just a function that can modify the incoming request data, a step that the request goes through while it's being processed.
+// express does not put that body data on the req. so in order to have that data available we use this middleware.
 app.use(express.json());
 
 // simple built in middleware to serve static files.
