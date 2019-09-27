@@ -39,6 +39,7 @@ app.use(express.json());
 // when we open up a url that we cant find in any of our routes it will then look in that public folder that we defined and it kind of sets that folder to the root.
 app.use(express.static(`${__dirname}/public`));
 
+/*
 // defining our own custom middleware.
 // this middleware here applys to each and every single request.because we didnt specify any route.
 // in express the ORDER of the middleware in the code matters. the request-response cycle is LINEAR.
@@ -48,6 +49,7 @@ app.use((req, res, next) => {
   // we need to call the next function, because otherwise the request-response cycle will get stuck at this point.
   next();
 });
+*/
 
 // another custom middleware
 // to manipulate the request object. to add the current time to the request.
