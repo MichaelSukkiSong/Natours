@@ -89,6 +89,16 @@ so our tourRouter is the sub-application that we created, which in turn has its 
 and finally it will run one of these handlers depending on the method.
 */
 
+// handling unhandled routes
+// if we are able to reach this point here, then it means that the request response cycle was not yet finished at this point in our code.
+// so this should be basically the last part after all our other routes.
+app.all('*', (req, res, next) => {
+  res.status(404).json({
+    status: 'fail',
+    message: `Can't find ${req.originalUrl} on this server!`
+  });
+});
+
 // 4) START SERVER
 
 module.exports = app;
