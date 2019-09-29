@@ -10,6 +10,8 @@ We have everything that is basically the application configuration in one stand-
 const express = require('express');
 const morgan = require('morgan');
 
+const AppError = require('./utils/appError');
+const globalErrorHandler = require('./controllers/errorController');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 
@@ -100,26 +102,18 @@ app.all('*', (req, res, next) => {
 
   // we create an error
   // we are creating an error and then we then define these status statuscode properties on it so that our error handling middleware can then use them in a next step.
-  const err = new Error(`Can't find ${req.originalUrl} on this server!`);
-  err.status = 'fail';
-  err.statusCode = 404;
+  // const err = new Error(`Can't find ${req.originalUrl} on this server!`);
+  // err.status = 'fail';
+  // err.statusCode = 404;
 
   // if the next function receives an argument no matter what it is, express will automatically know that there was an error.
   // so it wil assume that whatever we pass in to next, is gonna be an error. that applies to every next function in every single middleware anywhere in our application
   // so again whenever we pass anything into next it will assume it's an error, and it will then skip all the other middlewares in the middle stack and send the error that we passed in to our global error handling middleware.
-  next(err);
+  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
 // Global error handling middleware
-app.use((err, req, res, next) => {
-  err.statusCode = err.statusCode || 500;
-  err.status = err.status || 'error';
-
-  res.status(err.statusCode).json({
-    status: err.status,
-    message: err.message
-  });
-});
+app.use(globalErrorHandler);
 
 // 4) START SERVER
 
