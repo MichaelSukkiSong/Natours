@@ -3,6 +3,7 @@
 // import tour model
 const Tour = require('./../models/tourModel');
 const APIFeatures = require('./../utils/apiFeatures');
+const catchAsync = require('./../utils/catchAsync');
 
 /*
 //////////TESTING////////////
@@ -51,12 +52,11 @@ exports.aliasTopTours = (req, res, next) => {
   next();
 };
 
-exports.getAllTours = async (req, res) => {
-  try {
-    console.log(req.query);
+exports.getAllTours = catchAsync(async (req, res, next) => {
+  console.log(req.query);
 
-    // BUILD QUERY
-    /*
+  // BUILD QUERY
+  /*
     // 1A) Filtering
     // we have to exclude special field names from our query string before we actually do the filtering.(ex. &page=2, )
     // we need a hard copy here. because if we delete something from queryObj, it will also delete it from the req.query if we do a shallow copy.(In JS when we set a variable to an another object, the new variable will be a reference to that original object)
@@ -89,7 +89,7 @@ exports.getAllTours = async (req, res) => {
     let query = Tour.find(JSON.parse(queryStr));
     */
 
-    /*
+  /*
     // 2) Sorting
     if (req.query.sort) {
       const sortBy = req.query.sort.split(',').join(' ');
@@ -101,7 +101,7 @@ exports.getAllTours = async (req, res) => {
     }
     */
 
-    /*
+  /*
     // 3) Field limiting
     if (req.query.fields) {
       const fields = req.query.fields.split(',').join(' ');
@@ -112,7 +112,7 @@ exports.getAllTours = async (req, res) => {
     }
     */
 
-    /*
+  /*
     // 4) Pagination
     const page = req.query.page * 1 || 1;
     const limit = req.query.limit * 1 || 100;
@@ -127,250 +127,210 @@ exports.getAllTours = async (req, res) => {
     }
     */
 
-    // EXECUTE QUERY
-    /* 
+  // EXECUTE QUERY
+  /* 
     we are creating a new object of the APIFeatures class.
     In there we are passing a query object, and the queryString that is coming from express
     And then in each of the 4 methods that we call one after another, we manipulate the query, we keep adding more methods to it
     And then by the end we await the result of that query so that it can comeback with all the documents that were selected. the query now lives at features.
     */
-    const features = new APIFeatures(Tour.find(), req.query)
-      .filter()
-      .sort()
-      .limitFields()
-      .paginate();
-    const tours = await features.query;
-    // query.sort().select().skip().limit()
+  const features = new APIFeatures(Tour.find(), req.query)
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+  const tours = await features.query;
+  // query.sort().select().skip().limit()
 
-    // find(),findByIdAndUpdate(),findById() returns query objects, and later on can be used to immplement sorting/filtering.
-    // another way of writing database queries in mongoose.(Using special mongoose methods)
-    // const query = await Tour.find()
-    //   .where('duration')
-    //   .equals(5)
-    //   .where('difficulty')
-    //   .equals('easy');
+  // find(),findByIdAndUpdate(),findById() returns query objects, and later on can be used to immplement sorting/filtering.
+  // another way of writing database queries in mongoose.(Using special mongoose methods)
+  // const query = await Tour.find()
+  //   .where('duration')
+  //   .equals(5)
+  //   .where('difficulty')
+  //   .equals('easy');
 
-    // SEND RESPONSE
-    res.status(200).json({
-      status: 'success',
-      // requestedAt: req.requestTime
-      results: tours.length,
-      data: {
-        tours
-      }
-    });
-  } catch (err) {
-    res.status(404).json({
-      status: 'fail',
-      message: err
-    });
-  }
-};
+  // SEND RESPONSE
+  res.status(200).json({
+    status: 'success',
+    // requestedAt: req.requestTime
+    results: tours.length,
+    data: {
+      tours
+    }
+  });
+});
 
-exports.getTour = async (req, res) => {
-  try {
-    // exactly the same as Tour.findOne({ _id: req.params.id }). findById is a shorthand of writing { _id: req.params.id }
-    // find(),findByIdAndUpdate(),findById() returns query objects, and later on can be used to immplement sorting/filtering.
-    const tour = await Tour.findById(req.params.id);
+exports.getTour = catchAsync(async (req, res, next) => {
+  // exactly the same as Tour.findOne({ _id: req.params.id }). findById is a shorthand of writing { _id: req.params.id }
+  // find(),findByIdAndUpdate(),findById() returns query objects, and later on can be used to immplement sorting/filtering.
+  const tour = await Tour.findById(req.params.id);
 
-    res.status(200).json({
-      status: 'success',
-      data: {
-        tour
-      }
-    });
-  } catch (err) {
-    res.status(404).json({
-      status: 'fail',
-      message: err
-    });
-  }
+  res.status(200).json({
+    status: 'success',
+    data: {
+      tour
+    }
+  });
   // console.log(req.params);
   // const id = req.params.id * 1;
 
   // const tour = tours.find(el => el.id === id);
-};
+});
 
-exports.createTour = async (req, res) => {
-  try {
-    // we can do it like this to create documents. we create the tour from the model, and then use the save method on that tour. this save method returns a promise.
-    // https://mongoosejs.com/docs/api/model.html#model_Model-save
-    // const newTour = new Tour({});
-    // newTour.save();
+exports.createTour = catchAsync(async (req, res, next) => {
+  // we can do it like this to create documents. we create the tour from the model, and then use the save method on that tour. this save method returns a promise.
+  // https://mongoosejs.com/docs/api/model.html#model_Model-save
+  // const newTour = new Tour({});
+  // newTour.save();
 
-    // but.. we can also do it like this to create a document.
-    // we call the create method right on the model itself. this create method also returns a promise. but we are going to use async/await this time.
-    const newTour = await Tour.create(req.body);
+  // but.. we can also do it like this to create a document.
+  // we call the create method right on the model itself. this create method also returns a promise. but we are going to use async/await this time.
+  const newTour = await Tour.create(req.body);
 
-    // we have to use middleware for the req to have the body property.
-    // console.log(req.body);
+  // we have to use middleware for the req to have the body property.
+  // console.log(req.body);
 
-    res.status(201).json({
-      status: 'success',
-      data: {
-        tour: newTour
-      }
-    });
+  res.status(201).json({
+    status: 'success',
+    data: {
+      tour: newTour
+    }
+  });
 
-    // const newId = tours[tours.length - 1].id + 1;
-    // const newTour = Object.assign({ id: newId }, req.body);
+  // const newId = tours[tours.length - 1].id + 1;
+  // const newTour = Object.assign({ id: newId }, req.body);
 
-    // tours.push(newTour);
+  // tours.push(newTour);
 
-    // fs.writeFile(
-    //   `${__dirname}/dev-data/data/tours-simple.json`,
-    //   JSON.stringify(tours),
-    //   err => {
-    //     res.status(201).json({
-    //       status: 'success',
-    //       data: {
-    //         tour: newTour
-    //       }
-    //     });
-    //   }
-    // );
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err
-    });
-  }
-};
+  // fs.writeFile(
+  //   `${__dirname}/dev-data/data/tours-simple.json`,
+  //   JSON.stringify(tours),
+  //   err => {
+  //     res.status(201).json({
+  //       status: 'success',
+  //       data: {
+  //         tour: newTour
+  //       }
+  //     });
+  //   }
+  // );
 
-exports.updateTour = async (req, res) => {
-  try {
-    // https://mongoosejs.com/docs/queries.html
-    // find(),findByIdAndUpdate(),findById() returns query objects, and later on can be used to immplement sorting/filtering.
-    const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-      // new: bool - true to return the modified document rather than the original. defaults to false
-      new: true,
-      // runValidators: if true, runs update validators on this command. Update validators validate the update operation against the model's schema.
-      runValidators: true
-    });
+  // try {
+  // } catch (err) {
+  //   res.status(400).json({
+  //     status: 'fail',
+  //     message: err
+  //   });
+  // }
+});
 
-    res.status(200).json({
-      status: 'success',
-      data: {
-        tour
-      }
-    });
-  } catch (err) {
-    res.status(404).json({
-      status: 'fail',
-      message: err
-    });
-  }
-};
+exports.updateTour = catchAsync(async (req, res, next) => {
+  // https://mongoosejs.com/docs/queries.html
+  // find(),findByIdAndUpdate(),findById() returns query objects, and later on can be used to immplement sorting/filtering.
+  const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
+    // new: bool - true to return the modified document rather than the original. defaults to false
+    new: true,
+    // runValidators: if true, runs update validators on this command. Update validators validate the update operation against the model's schema.
+    runValidators: true
+  });
 
-exports.deleteTour = async (req, res) => {
-  try {
-    await Tour.findByIdAndDelete(req.params.id);
+  res.status(200).json({
+    status: 'success',
+    data: {
+      tour
+    }
+  });
+});
 
-    res.status(204).json({
-      status: 'success',
-      data: null
-    });
-  } catch (err) {
-    res.status(404).json({
-      status: 'fail',
-      message: err
-    });
-  }
-};
+exports.deleteTour = catchAsync(async (req, res, next) => {
+  await Tour.findByIdAndDelete(req.params.id);
+
+  res.status(204).json({
+    status: 'success',
+    data: null
+  });
+});
 
 // aggregation pipeline: mathcing and grouping
-exports.getTourStats = async (req, res) => {
-  try {
-    // .find returns a query .aggregate returns an aggregate object.
-    const stats = await Tour.aggregate([
-      {
-        $match: { ratingsAverage: { $gte: 4.5 } }
-      },
-      {
-        $group: {
-          _id: { $toUpper: '$difficulty' },
-          numTours: { $sum: 1 },
-          numRatings: { $sum: '$ratingsQuantity' },
-          avgRating: { $avg: '$ratingsAverage' },
-          avgPrice: { $avg: '$price' },
-          minPrice: { $min: '$price' },
-          maxPrice: { $max: '$price' }
-        }
-      },
-      {
-        $sort: { avgPrice: 1 }
+exports.getTourStats = catchAsync(async (req, res, next) => {
+  // .find returns a query .aggregate returns an aggregate object.
+  const stats = await Tour.aggregate([
+    {
+      $match: { ratingsAverage: { $gte: 4.5 } }
+    },
+    {
+      $group: {
+        _id: { $toUpper: '$difficulty' },
+        numTours: { $sum: 1 },
+        numRatings: { $sum: '$ratingsQuantity' },
+        avgRating: { $avg: '$ratingsAverage' },
+        avgPrice: { $avg: '$price' },
+        minPrice: { $min: '$price' },
+        maxPrice: { $max: '$price' }
       }
-      // {
-      //   $match: { _id: { $ne: 'EASY' } }
-      // }
-    ]);
+    },
+    {
+      $sort: { avgPrice: 1 }
+    }
+    // {
+    //   $match: { _id: { $ne: 'EASY' } }
+    // }
+  ]);
 
-    res.status(200).json({
-      status: 'success',
-      data: {
-        stats
-      }
-    });
-  } catch (err) {
-    res.status(404).json({
-      status: 'fail',
-      message: err
-    });
-  }
-};
+  res.status(200).json({
+    status: 'success',
+    data: {
+      stats
+    }
+  });
+});
 
 // aggregation pipeline: unwinding and projecting
-exports.getMonthlyPlan = async (req, res) => {
-  try {
-    const year = req.params.year * 1; // 2021
+exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
+  const year = req.params.year * 1; // 2021
 
-    const plan = await Tour.aggregate([
-      {
-        // unwind is going to deconstruct an array field from the input documents, and then output one document for each element of the array
-        // basically we want to have one tour for each of these dates in the array
-        $unwind: '$startDates'
-      },
-      {
-        $match: {
-          startDates: {
-            $gte: new Date(`${year}-01-01`),
-            $lte: new Date(`${year}-12-31`)
-          }
+  const plan = await Tour.aggregate([
+    {
+      // unwind is going to deconstruct an array field from the input documents, and then output one document for each element of the array
+      // basically we want to have one tour for each of these dates in the array
+      $unwind: '$startDates'
+    },
+    {
+      $match: {
+        startDates: {
+          $gte: new Date(`${year}-01-01`),
+          $lte: new Date(`${year}-12-31`)
         }
-      },
-      {
-        $group: {
-          _id: { $month: '$startDates' },
-          numTourStarts: { $sum: 1 },
-          tours: { $push: '$name' }
-        }
-      },
-      {
-        $addFields: { month: '$_id' }
-      },
-      {
-        $project: {
-          _id: 0
-        }
-      },
-      {
-        $sort: { numTourStarts: -1 }
-      },
-      {
-        $limit: 12
       }
-    ]);
+    },
+    {
+      $group: {
+        _id: { $month: '$startDates' },
+        numTourStarts: { $sum: 1 },
+        tours: { $push: '$name' }
+      }
+    },
+    {
+      $addFields: { month: '$_id' }
+    },
+    {
+      $project: {
+        _id: 0
+      }
+    },
+    {
+      $sort: { numTourStarts: -1 }
+    },
+    {
+      $limit: 12
+    }
+  ]);
 
-    res.status(200).json({
-      status: 'success',
-      data: {
-        plan
-      }
-    });
-  } catch (err) {
-    res.status(404).json({
-      status: 'fail',
-      message: err
-    });
-  }
-};
+  res.status(200).json({
+    status: 'success',
+    data: {
+      plan
+    }
+  });
+});
