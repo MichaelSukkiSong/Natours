@@ -88,6 +88,17 @@ testTour
 
 const port = process.env.PORT || 3000;
 // start a server
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`App running on port ${port}...`);
+});
+
+// how to globally handle unhandled Rejected promises
+// each time that there is an unhandledRejection somewhere in our application, the process object will emit an object called unhandledRejection and so we can subscribe to that event just like this.
+// basically we are listening to the 'unhandledRejection' event which then allows us to handle all the errors that occur in async code which were not previously handled.
+process.on('unhandledRejection', err => {
+  console.log(err.name, err.message);
+  console.log('UNHANDLED REJECTION! !!! Shutting down...');
+  server.close(() => {
+    process.exit(1);
+  });
 });
