@@ -10,6 +10,12 @@ const mongoose = require('mongoose');
 // we use the dotenv npm package.
 const dotenv = require('dotenv');
 
+process.on('uncaughtException', err => {
+  console.log('UNCAUGHT EXCEPTION! !!! Shutting down...');
+  console.log(err.name, err.message);
+  process.exit(1);
+});
+
 // we use dotenv variable and call config on it, and then in there we pass an object to specify the path where our configuration is located.
 // it will read the variables from the file and save them into nodejs environment variables.
 dotenv.config({ path: './config.env' });
@@ -96,8 +102,8 @@ const server = app.listen(port, () => {
 // each time that there is an unhandledRejection somewhere in our application, the process object will emit an object called unhandledRejection and so we can subscribe to that event just like this.
 // basically we are listening to the 'unhandledRejection' event which then allows us to handle all the errors that occur in async code which were not previously handled.
 process.on('unhandledRejection', err => {
-  console.log(err.name, err.message);
   console.log('UNHANDLED REJECTION! !!! Shutting down...');
+  console.log(err.name, err.message);
   server.close(() => {
     process.exit(1);
   });
