@@ -50,6 +50,7 @@ const sendErrorProd = (err, res) => {
   }
 };
 
+// To define an error handling middleware all we need to do is to give the middleware function 4 arguments. and then express will automatically recognize it as an error handling middleware. and therefor only call it when there is an error.
 module.exports = (err, req, res, next) => {
   //console.log(err.stack);
 
