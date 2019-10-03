@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 // A library of string validators and sanitizers.
-const validator = require('validator');
+//const validator = require('validator');
 
 // tour schema
 const tourSchema = new mongoose.Schema(
