@@ -34,6 +34,7 @@ const userSchema = new mongoose.Schema({
   }
 });
 
+// mongoose middleware: document middleware
 userSchema.pre('save', async function(next) {
   // if the password has not been modified then lets just exit this function and just call the next middleware
   // Only run this function if password was actually modified
