@@ -1,5 +1,6 @@
 const express = require('express');
 const tourController = require('./../controllers/tourController');
+const authController = require('./../controllers/authController');
 
 // If we want to separate the resources for routes and route handlers, we have to have one separate router for each of our resources.
 // Each router is kind of a mini sub application one for each resource.
@@ -27,7 +28,7 @@ router.route('/monthly-plan/:year').get(tourController.getMonthlyPlan);
 
 router
   .route('/')
-  .get(tourController.getAllTours)
+  .get(authController.protect, tourController.getAllTours)
   .post(/*tourController.checkBody, */ tourController.createTour);
 
 router

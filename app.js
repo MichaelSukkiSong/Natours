@@ -59,6 +59,8 @@ app.use((req, res, next) => {
   // Let's pretend we have some route handler that really needs the info about when exactly the request happens.
   // then we can define a property on the request object called requestTime and set it to a value representing the time that the request happened.
   req.requestTime = new Date().toISOString();
+  //console.log(req.headers);
+
   next();
 });
 
