@@ -99,8 +99,10 @@ userSchema.methods.changedPasswordAfter = function(JWTTimestamp) {
 };
 
 userSchema.methods.createPasswordResetToken = function() {
+  // it behaves like a password when creating a password
   const resetToken = crypto.randomBytes(32).toString('hex');
 
+  // we encrypt it
   this.passwordResetToken = crypto
     .createHash('sha256')
     .update(resetToken)
@@ -108,6 +110,7 @@ userSchema.methods.createPasswordResetToken = function() {
 
   console.log({ resetToken }, this.passwordResetToken);
 
+  // expires after 10 minute.
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 
   return resetToken;
