@@ -9,6 +9,7 @@ We have everything that is basically the application configuration in one stand-
 
 const express = require('express');
 const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
 
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -18,7 +19,7 @@ const userRouter = require('./routes/userRoutes');
 // calling express will add a bunch of methods to our app variable.
 const app = express();
 
-// 1) MIDDLEWARES
+// 1) GLOBAL MIDDLEWARES
 
 // 3rd-party middleware from npm
 // a http request logger.
@@ -29,6 +30,16 @@ const app = express();
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
+
+// this limiter that we created is basically a middleware function.
+const limiter = rateLimit({
+  // allow 100 requests from the same IP in 1 hour.
+  max: 3,
+  windowMs: 60 * 60 * 1000,
+  message: 'Too many requests from this IP, please try again in an hour!'
+});
+// we can use it using app.use, and also specify the route that needs limited accessing.
+app.use('/api', limiter);
 
 // app.use to USE middleware.
 // express.json() is a middleware. express.json() returns a function. middleware is basically just a function that can modify the incoming request data, a step that the request goes through while it's being processed.
