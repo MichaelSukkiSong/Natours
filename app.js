@@ -10,6 +10,7 @@ We have everything that is basically the application configuration in one stand-
 const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -20,7 +21,10 @@ const userRouter = require('./routes/userRoutes');
 const app = express();
 
 // 1) GLOBAL MIDDLEWARES
+// Set security HTTP headers
+app.use(helmet());
 
+// Development logging
 // 3rd-party middleware from npm
 // a http request logger.
 // we used the environment variable NODE_ENV in order to run this middleware when we are in development
@@ -31,21 +35,24 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
+// Limit requests from same API
 // this limiter that we created is basically a middleware function.
 const limiter = rateLimit({
   // allow 100 requests from the same IP in 1 hour.
-  max: 3,
+  max: 100,
   windowMs: 60 * 60 * 1000,
   message: 'Too many requests from this IP, please try again in an hour!'
 });
 // we can use it using app.use, and also specify the route that needs limited accessing.
 app.use('/api', limiter);
 
+// Body parser, reading data from body into req.body
 // app.use to USE middleware.
 // express.json() is a middleware. express.json() returns a function. middleware is basically just a function that can modify the incoming request data, a step that the request goes through while it's being processed.
 // express does not put that body data on the req. so in order to have that data available we use this middleware.
-app.use(express.json());
+app.use(express.json({ limit: '10kb' }));
 
+// Serving static files
 // simple built in middleware to serve static files.
 // how we can serve static files from a folder and not from a route.
 // not go into any route but simply serve that file that we specified from the folder that we specified in this middleware
@@ -64,6 +71,7 @@ app.use((req, res, next) => {
 });
 */
 
+// Test middleware
 // another custom middleware
 // to manipulate the request object. to add the current time to the request.
 app.use((req, res, next) => {
