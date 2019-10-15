@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
-const User = require('./userModel');
+// const User = require('./userModel');
 // A library of string validators and sanitizers.
 //const validator = require('validator');
 
@@ -124,7 +124,13 @@ const tourSchema = new mongoose.Schema(
         day: Number
       }
     ],
-    guides: Array
+    guides: [
+      {
+        type: mongoose.Schema.ObjectId,
+        // how we establish references between different datasets in mongoose.
+        ref: 'User'
+      }
+    ]
   },
   // the object for the schema options
   // we have to explicitly define in our schema that we want the virtual properties in our output.
@@ -170,6 +176,7 @@ tourSchema.pre('save', function(next) {
   next();
 });
 
+/*
 // embedding users into tour document
 tourSchema.pre('save', async function(next) {
   // guidesPromises is an array full of promises
@@ -178,6 +185,7 @@ tourSchema.pre('save', async function(next) {
   this.guides = await Promise.all(guidesPromises);
   next();
 });
+*/
 
 /*
 tourSchema.pre('save', function(next) {
