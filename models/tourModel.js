@@ -216,6 +216,17 @@ tourSchema.pre(/^find/, function(next) {
   next();
 });
 
+// all of the queries will automatically populate the guides field with the reference user.
+// a nice way in case you always want to populate all your documents.
+tourSchema.pre(/^find/, function(next) {
+  this.populate({
+    path: 'guides',
+    select: '-__v -passwordChangedAt'
+  });
+
+  next();
+});
+
 // post query middleware
 tourSchema.post(/^find/, function(docs, next) {
   console.log(`Query took ${Date.now() - this.start} milliseconds!`);
