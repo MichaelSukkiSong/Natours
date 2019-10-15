@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
+const User = require('./userModel');
 // A library of string validators and sanitizers.
 //const validator = require('validator');
 
@@ -122,7 +123,8 @@ const tourSchema = new mongoose.Schema(
         description: String,
         day: Number
       }
-    ]
+    ],
+    guides: Array
   },
   // the object for the schema options
   // we have to explicitly define in our schema that we want the virtual properties in our output.
@@ -165,6 +167,15 @@ tourSchema.pre('save', function(next) {
   // define a new propery(slug) at the currently processed document(this) which will be the slug of the this.name in lowercase.
   this.slug = slugify(this.name, { lower: true });
   // just like express mongoose middleware has next function.
+  next();
+});
+
+// embedding users into tour document
+tourSchema.pre('save', async function(next) {
+  // guidesPromises is an array full of promises
+  const guidesPromises = this.guides.map(async id => await User.findById(id));
+  // await all the promises all at once using Promise.all
+  this.guides = await Promise.all(guidesPromises);
   next();
 });
 
