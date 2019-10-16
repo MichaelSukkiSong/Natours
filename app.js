@@ -19,6 +19,7 @@ const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
+const reviewRouter = require('./routes/reviewRoutes');
 
 // calling express will add a bunch of methods to our app variable.
 const app = express();
@@ -126,6 +127,7 @@ app.use((req, res, next) => {
 // MOUNTING OUR ROUTERS
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/reviews', reviewRouter);
 
 // so...the tourRouter middleware only runs on '/api/v1/tours' this route here, so once we are in the router then we already are at that route.
 // when we create a router system like this, we actually say that we kind of create a small sub-app for each of theses resources.
