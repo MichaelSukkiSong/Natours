@@ -158,6 +158,14 @@ Of course we could also have done this conversion each time after we query the d
 knowing the duration in weeks is a business logic because it has to do with the business itself not with stuff like requests or responses and so we do the calculation right in the model where it belongs and not in the controller.
 */
 
+// Virtual populate
+// _id, which is how it's called in the local model, is called tour in the foreign model, so in the review model
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour',
+  localField: '_id'
+});
+
 // Just like express mongoose also has the concept of middleware. which can be used to make something happen between two events.
 // for example, each time a new document is saved to the database we can run a function between the save command is issued and the actual saving of the document.or also after the actual saving
 // There are 4 types of middleware in mongoose: document, query, aggregate, and model middleware.(model middleware not that important)
