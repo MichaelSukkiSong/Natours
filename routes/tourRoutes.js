@@ -1,7 +1,7 @@
 const express = require('express');
 const tourController = require('./../controllers/tourController');
 const authController = require('./../controllers/authController');
-const reviewController = require('./../controllers/reviewController');
+const reviewRouter = require('./../routes/reviewRoutes');
 
 // If we want to separate the resources for routes and route handlers, we have to have one separate router for each of our resources.
 // Each router is kind of a mini sub application one for each resource.
@@ -16,6 +16,19 @@ const router = express.Router();
 // Check if body contains the name and price property
 // If not, send back 400 (bad request)
 // Add it to the post handler stack
+
+// POST /tour/234fad4/reviews
+// GET /tour/234fad4/reviews
+
+// router
+//   .route('/:tourId/reviews')
+//   .post(
+//     authController.protect,
+//     authController.restrictTo('user'),
+//     reviewController.createReview
+//   );
+
+router.use('/:tourId/reviews', reviewRouter);
 
 // aliasing
 router
@@ -40,18 +53,6 @@ router
     authController.protect,
     authController.restrictTo('admin', 'lead-guide'),
     tourController.deleteTour
-  );
-
-// POST /tour/234fad4/reviews
-// GET /tour/234fad4/reviews
-// GET /tour/234fad4/reviews/94887fda
-
-router
-  .route('/:tourid/reviews')
-  .post(
-    authController.protect,
-    authController.restrictTo('user'),
-    reviewController.createReview
   );
 
 module.exports = router;
