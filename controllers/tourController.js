@@ -184,75 +184,35 @@ exports.getTour = catchAsync(async (req, res, next) => {
   // const tour = tours.find(el => el.id === id);
 });
 
-exports.createTour = catchAsync(async (req, res, next) => {
-  // we can do it like this to create documents. we create the tour from the model, and then use the save method on that tour. this save method returns a promise.
-  // https://mongoosejs.com/docs/api/model.html#model_Model-save
-  // const newTour = new Tour({});
-  // newTour.save();
+exports.createTour = factory.createOne(Tour);
 
-  // but.. we can also do it like this to create a document.
-  // we call the create method right on the model itself. this create method also returns a promise. but we are going to use async/await this time.
-  const newTour = await Tour.create(req.body);
+// const newId = tours[tours.length - 1].id + 1;
+// const newTour = Object.assign({ id: newId }, req.body);
 
-  // we have to use middleware for the req to have the body property.
-  // console.log(req.body);
+// tours.push(newTour);
 
-  res.status(201).json({
-    status: 'success',
-    data: {
-      tour: newTour
-    }
-  });
+// fs.writeFile(
+//   `${__dirname}/dev-data/data/tours-simple.json`,
+//   JSON.stringify(tours),
+//   err => {
+//     res.status(201).json({
+//       status: 'success',
+//       data: {
+//         tour: newTour
+//       }
+//     });
+//   }
+// );
 
-  // const newId = tours[tours.length - 1].id + 1;
-  // const newTour = Object.assign({ id: newId }, req.body);
+// try {
+// } catch (err) {
+//   res.status(400).json({
+//     status: 'fail',
+//     message: err
+//   });
+// }
 
-  // tours.push(newTour);
-
-  // fs.writeFile(
-  //   `${__dirname}/dev-data/data/tours-simple.json`,
-  //   JSON.stringify(tours),
-  //   err => {
-  //     res.status(201).json({
-  //       status: 'success',
-  //       data: {
-  //         tour: newTour
-  //       }
-  //     });
-  //   }
-  // );
-
-  // try {
-  // } catch (err) {
-  //   res.status(400).json({
-  //     status: 'fail',
-  //     message: err
-  //   });
-  // }
-});
-
-exports.updateTour = catchAsync(async (req, res, next) => {
-  // https://mongoosejs.com/docs/queries.html
-  // find(),findByIdAndUpdate(),findById() returns query objects, and later on can be used to immplement sorting/filtering.
-  const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-    // new: bool - true to return the modified document rather than the original. defaults to false
-    new: true,
-    // runValidators: if true, runs update validators on this command. Update validators validate the update operation against the model's schema.
-    runValidators: true
-  });
-
-  if (!tour) {
-    return next(new AppError('No tour found with that ID', 404));
-  }
-
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tour
-    }
-  });
-});
-
+exports.updateTour = factory.updateOne(Tour);
 exports.deleteTour = factory.deleteOne(Tour);
 
 // exports.deleteTour = catchAsync(async (req, res, next) => {
