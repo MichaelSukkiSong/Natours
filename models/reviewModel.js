@@ -1,5 +1,6 @@
 // review / rating / createdAt / ref to tour / ref to user
 const mongoose = require('mongoose');
+const Tour = require('./tourModel');
 
 const reviewSchema = new mongoose.Schema(
   {
@@ -64,14 +65,18 @@ reviewSchema.statics.calcAverageRatings = async function(tourId) {
     }
   ]);
   console.log(stats);
+
+  await Tour.findByIdAndUpdate(tourId, {
+    ratingsQuantity: stats[0].nRating,
+    ratingsAverage: stats[0].avgRating
+  });
 };
 
-reviewSchema.pre('save', function(next) {
+reviewSchema.post('save', function() {
   // this points to current review
   // this is the current document and the constructor is the model who created that document.
   // we want to call it like this...Review.calcAverageRatings...so...
   this.constructor.calcAverageRatings(this.tour);
-  next();
 });
 
 const Review = mongoose.model('Review', reviewSchema);
