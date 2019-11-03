@@ -251,12 +251,12 @@ tourSchema.post(/^find/, function(docs, next) {
 
 // AGGREGATION MIDDLEWARE
 // aggregation middleware allows us to add hooks before or after an aggregation happens.
-tourSchema.pre('aggregate', function(next) {
-  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
-  // the this keyword points to the current aggregation object.
-  console.log(this.pipeline());
-  next();
-});
+// tourSchema.pre('aggregate', function(next) {
+//   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+//   // the this keyword points to the current aggregation object.
+//   console.log(this.pipeline());
+//   next();
+// });
 
 // tour model created by the schema
 const Tour = mongoose.model('Tour', tourSchema);
