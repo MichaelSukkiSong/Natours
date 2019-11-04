@@ -165,3 +165,10 @@ app.use(globalErrorHandler);
 // 4) START SERVER
 
 module.exports = app;
+
+/*
+STUDY
+
+studied 47-51
+
+*/
