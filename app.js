@@ -171,5 +171,6 @@ STUDY
 
 studied 47-51
 studied 52-56
+studied 57-62
 
 */
