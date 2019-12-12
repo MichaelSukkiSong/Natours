@@ -7,6 +7,7 @@ and then for the specific routes, we want to apply the tourRouter middleware or 
 We have everything that is basically the application configuration in one stand-alone file
 */
 
+const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
@@ -24,7 +25,18 @@ const reviewRouter = require('./routes/reviewRoutes');
 // calling express will add a bunch of methods to our app variable.
 const app = express();
 
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
+
 // 1) GLOBAL MIDDLEWARES
+
+// Serving static files
+// simple built in middleware to serve static files.
+// how we can serve static files from a folder and not from a route.
+// not go into any route but simply serve that file that we specified from the folder that we specified in this middleware
+// when we open up a url that we cant find in any of our routes it will then look in that public folder that we defined and it kind of sets that folder to the root.
+app.use(express.static(path.join(__dirname, 'public')));
+
 // Set security HTTP headers
 app.use(helmet());
 
@@ -77,13 +89,6 @@ app.use(
   })
 );
 
-// Serving static files
-// simple built in middleware to serve static files.
-// how we can serve static files from a folder and not from a route.
-// not go into any route but simply serve that file that we specified from the folder that we specified in this middleware
-// when we open up a url that we cant find in any of our routes it will then look in that public folder that we defined and it kind of sets that folder to the root.
-app.use(express.static(`${__dirname}/public`));
-
 /*
 // defining our own custom middleware.
 // this middleware here applys to each and every single request.because we didnt specify any route.
@@ -118,6 +123,10 @@ app.use((req, res, next) => {
 // app.delete('/api/v1/tours/:id', deleteTour);
 
 // 3) ROUTES
+
+app.get('/', (req, res) => {
+  res.status(200).render('base');
+});
 
 // how to connect the new router with our application? we will use it as middleware.because the tourRouter, userRouter is actually a real middleware.
 // we want to use the tourRouter/userRouter(middleware) on a specific route.
@@ -207,5 +216,6 @@ studied 172
 studied 173
 studied 174
 studied 175
+studied 176
 
 */
