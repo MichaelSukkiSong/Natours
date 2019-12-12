@@ -125,7 +125,10 @@ app.use((req, res, next) => {
 // 3) ROUTES
 
 app.get('/', (req, res) => {
-  res.status(200).render('base');
+  res.status(200).render('base', {
+    tour: 'The Forest Hiker',
+    user: 'Jonas'
+  });
 });
 
 // how to connect the new router with our application? we will use it as middleware.because the tourRouter, userRouter is actually a real middleware.
