@@ -21,6 +21,7 @@ const globalErrorHandler = require('./controllers/errorController');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
+const viewRouter = require('./routes/viewRoutes');
 
 // calling express will add a bunch of methods to our app variable.
 const app = express();
@@ -124,24 +125,7 @@ app.use((req, res, next) => {
 
 // 3) ROUTES
 
-app.get('/', (req, res) => {
-  res.status(200).render('base', {
-    tour: 'The Forest Hiker',
-    user: 'Jonas'
-  });
-});
-
-app.get('/overview', (req, res) => {
-  res.status(200).render('overview', {
-    title: 'All Tours'
-  });
-});
-
-app.get('/tour', (req, res) => {
-  res.status(200).render('tour', {
-    title: 'The Forest Hiker Tour'
-  });
-});
+app.use('/', viewRouter);
 
 // how to connect the new router with our application? we will use it as middleware.because the tourRouter, userRouter is actually a real middleware.
 // we want to use the tourRouter/userRouter(middleware) on a specific route.
