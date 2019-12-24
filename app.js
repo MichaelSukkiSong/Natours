@@ -15,6 +15,7 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const cookieParser = require('cookie-parser');
 
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -68,6 +69,7 @@ app.use('/api', limiter);
 // express.json() is a middleware. express.json() returns a function. middleware is basically just a function that can modify the incoming request data, a step that the request goes through while it's being processed.
 // express does not put that body data on the req. so in order to have that data available we use this middleware.
 app.use(express.json({ limit: '10kb' }));
+app.use(cookieParser());
 
 // Data sanitization against NoSQL query injection
 app.use(mongoSanitize());
@@ -109,8 +111,7 @@ app.use((req, res, next) => {
   // Let's pretend we have some route handler that really needs the info about when exactly the request happens.
   // then we can define a property on the request object called requestTime and set it to a value representing the time that the request happened.
   req.requestTime = new Date().toISOString();
-  //console.log(req.headers);
-
+  console.log(req.cookies);
   next();
 });
 
