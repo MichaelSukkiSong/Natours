@@ -295,5 +295,6 @@ lol why am i doing this xD but just for fun
 lol why am i doing this xD but just for fun
 getting ready
 getting ready
+getting ready
 
 */
