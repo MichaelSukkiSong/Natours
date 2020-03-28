@@ -308,5 +308,6 @@ getting ready
 almost ready
 starting
 starting
+today
 
 */
