@@ -333,5 +333,6 @@ node 9, js 100
 node 9, js reviewd budgety
 node 9, js budgety review finished
 node 9, js 116
+node 9, js coding challenge 8
 
 */
