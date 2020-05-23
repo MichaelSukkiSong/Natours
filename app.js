@@ -352,5 +352,6 @@ node 9, forkify review 3/4
 node 9, forkify review 4/4
 node 9, sect 9 speed
 node 9, sect 9 speed
+node 9, JS all
 
 */
